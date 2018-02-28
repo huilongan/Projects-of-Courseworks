@@ -1,0 +1,108 @@
+---
+title: "Homework No.5"
+author: "Xingye Ke"
+date: "February 28, 2018"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Q(a)
+
+(a) Make a time series plot of the data and make a comment about trend and seasonal effect.  
+```{r q1}
+setwd('c:/users/n886528/desktop/hw')
+
+dat <- read.table('unemployment.dat',header = T)
+ts.obj <- ts(dat,start = c(1963,1),end = c(2004,12), frequency = 12)
+
+plot(stl(ts.obj[,1],s.window = 'periodic'))
+
+```
+As we can see from the right side of the graphic\:<br>
+
+1.The grey rectangles of trend and the data series have the similar size, so the trend actually dominates the series;<br>
+
+2.If we look into the seasonal's grey rectangle, we could find the relative large size, which means variation in the seasonality is a much smaller component of the variation exhibited in the original series;<br>
+
+## Q(b)
+
+(b) Fit the exponential smoothing model without trend and seasonal factor and show the results from R (including the coefficient estimates, SSE, RMSE, and the smooth curve). 
+
+```{r q2}
+exp.smooth <- HoltWinters(dat,beta=FALSE,gamma = FALSE)
+exp.smooth
+print('**')
+cat('Sum Square Error is ',exp.smooth$SSE,'\n')
+cat('RMSE is ', sqrt(mean(exp.smooth$SSE)))
+plot(exp.smooth)
+
+```
+
+## Q(C)
+
+(c) Fit the additive seasonal model and show the results from R. (including the coefficient estimates, SSE, RMSE, and the smooth curve). 
+
+```{r q3}
+add.model<- HoltWinters(ts.obj,seasonal = 'additive')
+add.model
+print('**')
+cat('Sum Square Error is ',add.model$SSE,'\n')
+cat('RMSE is ', sqrt(mean(add.model$SSE)),'')
+plot(add.model)
+
+```
+
+## Q(d)
+
+(d) Fit the multiplicative seasonal model and show the results from R. (including the coefficient estimates, SS1PE, RMSE, and the smooth curve). 
+
+```{r q4}
+mul.model<- HoltWinters(ts.obj,seasonal = 'multiplicative')
+mul.model
+print('**')
+cat('Sum Square Error is ',mul.model$SSE,'\n')
+cat('RMSE is ', sqrt(mean(mul.model$SSE)),'')
+plot(mul.model)
+
+```
+
+## Q(e)
+
+We could find out that additive seasonal model(c) has the lowest RMSE value, which is 5.614179.Based on the reference to the RMSE, we could say (c) is a best fit.
+
+The result is pretty intuitive in that what we could learn from the time series plot is that the magnitude of variation of the series does not obviously vary with the series. Futhermore, the trend and seasonality part should be considered into the modeling procedure because they are not trivial, which we could see from the decomposition.
+
+## Q(f)
+ (f) Use the selected model from part (e), write down the forecast equations and calculate the predicted values for the unemployment rates from January, 2005 to December, 2005. 
+
+As we can see from the result of fitted model: 
+
+a    5.365832778
+b   -0.003738564
+s1   0.591546569
+s2   0.468471923
+s3   0.389181929
+s4  -0.134599116
+s5  -0.087719108
+s6   0.352443561
+s7   0.342321602
+s8   0.080297869
+s9  -0.143127183
+s10 -0.217817133
+s11 -0.181757136
+s12 -0.165832778
+ 
+## Q(g)
+```{r}
+addmodel.predict <- predict(add.model,n.ahead = 12)
+addmodel.predict
+```
+
+## Q(h)
+```{r}
+ts.plot(ts.obj,addmodel.predict,lty=1:2,col = c('blue','red'))
+```
+
